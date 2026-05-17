@@ -14,3 +14,11 @@ Este projeto automatiza a análise de segurança contínua com integração DevS
 ## Pipeline GitHub Actions
 
 Veja o exemplo em `.github/workflows/security.yml`.
+
+## Testes
+
+- Para rodar o teste de pentest SSRF:
+  ```bash
+  pytest tests/test_ssrf.py
+  ```
+- Opcionalmente, altere o alvo com a variável `SSRF_TEST_BASE_URL` (padrão: `http://localhost:5000`).
