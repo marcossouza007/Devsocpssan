@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import pytest
 import requests
@@ -6,6 +7,8 @@ import requests
 
 BASE_URL = os.getenv("SSRF_TEST_BASE_URL", "http://localhost:5000").rstrip("/")
 FETCH_URL_ENDPOINT = f"{BASE_URL}/fetch_url"
+LOCALHOST_SENSITIVE_INDICATORS = ["root:x:0:0:", "ssh-rsa"]
+CLOUD_METADATA_SENSITIVE_INDICATORS = ["ami-id", "instance-id", "security-credentials", "local-ipv4"]
 
 
 def _attempt_ssrf(target_url: str) -> requests.Response:
@@ -20,7 +23,7 @@ def _attempt_ssrf(target_url: str) -> requests.Response:
         pytest.skip(f"Endpoint de teste indisponível em {FETCH_URL_ENDPOINT}: {exc}")
 
 
-def _assert_no_sensitive_data(response: requests.Response, indicators: list[str], message: str) -> None:
+def _assert_no_sensitive_data(response: requests.Response, indicators: List[str], message: str) -> None:
     body = response.text.lower()
     for indicator in indicators:
         assert indicator not in body, message
@@ -31,7 +34,7 @@ def test_ssrf_to_localhost_is_blocked():
     assert response.status_code >= 400, "Possível SSRF: acesso interno localhost não foi bloqueado"
     _assert_no_sensitive_data(
         response,
-        ["root:x:0:0:", "ssh-rsa"],
+        LOCALHOST_SENSITIVE_INDICATORS,
         "Possível SSRF: conteúdo sensível interno retornado para localhost",
     )
 
@@ -41,6 +44,6 @@ def test_ssrf_to_cloud_metadata_is_blocked():
     assert response.status_code >= 400, "Possível SSRF: acesso ao metadata cloud não foi bloqueado"
     _assert_no_sensitive_data(
         response,
-        ["ami-id", "instance-id", "security-credentials", "local-ipv4"],
+        CLOUD_METADATA_SENSITIVE_INDICATORS,
         "Possível SSRF: dados de metadata cloud retornados",
     )

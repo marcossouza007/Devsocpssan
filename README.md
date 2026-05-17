@@ -18,5 +18,7 @@ Veja o exemplo em `.github/workflows/security.yml`.
 ## Testes
 
 - Para rodar o teste de pentest SSRF:
-  `pytest tests/test_ssrf.py`
+  ```bash
+  pytest tests/test_ssrf.py
+  ```
 - Opcionalmente, altere o alvo com a variável `SSRF_TEST_BASE_URL` (padrão: `http://localhost:5000`).
